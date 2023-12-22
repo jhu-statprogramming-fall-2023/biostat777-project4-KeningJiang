@@ -12,14 +12,14 @@ output:
       code_font: 
         google: "JetBrains Mono"
     orientation: columns
-    runtime: shiny
+runtime: shiny
 ---
 
 ```{r global, include=FALSE}
 # Load the packages
 library("flexdashboard")
-library("DT")
 library("shiny")
+library("DT")
 library("tidyverse")
 library("tidytuesdayR")
 library("here")
@@ -41,47 +41,7 @@ if (!file.exists(here("data", "hotels.RDS"))) {
 
 # Load the dataset
 hotels<- readRDS(here("data", "hotels.RDS"))
-```
 
-
-About
-=====================================  
-
-Column {data-width=400, vertical_layout: scroll}
------------------------------------------------------------------------
-
-### Purpose of the dashboard
-
-The dashboard is to examine hotel cancellations and factors associated with hotel cancellations in the United States between 2015 and 2017.
-
-![](hotel.png){fig-align="center"}
-
-
-
-Column {data-width=400, overflow-x: auto, vertical_layout: scroll}
------------------------------------------------------------------------
-
-### Original Data
-
-The dataset is included in [TidyTuesday, 2020-02-11](https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-02-11#readme). The original dataset comes from an open hotel booking demand dataset from [Antonio, Almeida and Nunes, 2019](https://www.sciencedirect.com/science/article/pii/S2352340918315191#f0010). This dataset includes bookings of resort hotels or city hotels between the 1st of July of 2015 and the 31st of August 2017, including bookings that effectively arrived and bookings that were canceled.
-
-
-### Dashboard Author
-
-Kening Jiang, MHS
-
-`r fontawesome::fa("envelope")` [Email](mailto:kjiang7@jhmi.edu)
-
-`r fontawesome::fa("github")`[Github](https://github.com/jhu-statprogramming-fall-2023/biostat777-project4-KeningJiang.git)
-
-`r fontawesome::fa("google")` [Google Scholar](https://scholar.google.com/citations?hl=en&user=J64T4xYAAAAJ&view_op=list_works&authuser=1&sortby=pubdate)
-
-
-The Data
-=====================================  
-
-
-```{r dataclean, warning=FALSE, message=FALSE}
 # Filter for USA hotel bookings and select relevant variables
 hotels_clean<- 
   hotels %>%
@@ -92,9 +52,7 @@ hotels_clean<-
 
 # Drop the observations with missing values
 hotels_clean <- na.omit(hotels_clean)
-```
 
-```{r datawrangling, warning=FALSE, message=FALSE}
 hotels_clean <- 
   hotels_clean %>%
 # Mutate the year variable to a factor variable
@@ -126,9 +84,7 @@ hotels_clean <-
                             arrival_date_month == 12 | arrival_date_month <= 2 ~ 3)) %>%
 # Create a combined variable for number of children and babies due to small numbers
   mutate(childbaby = children + babies)
-```
 
-```{r datalabel, warning=FALSE, message=FALSE}
 # Lable the factor variables
 hotels_clean$is_canceled <- factor(hotels_clean$is_canceled, levels=0:1, labels=c("No", "Yes"))
 hotels_clean$arrival_date_year <- factor(hotels_clean$arrival_date_year, levels=0:2, labels=c("2015", "2016", "2017"))
@@ -152,58 +108,7 @@ hotels_clean<-
   hotels_clean %>% select(-c("arrival_date_month", "children", "babies", 
                              "previous_cancellations", "previous_bookings_not_canceled",
                              "deposit_type", "customer_type"))
-```
 
-
-Column {data-width=650}
------------------------------------------------------------------------
-### Data Dictionary
-```{r datadictionary, warning=FALSE, message=FALSE}
-datadictionary <- data.frame(
-          "Variable" = c("is_canceled hotel", "lead_time", "arrival_date_year", 
-                         "arrival_date_season", "stays_in_weekend_nights", 
-                         "stays_in_week_nights", "adults", "childbaby", 
-                         "is_repeated_guest", "booking_changes", "adr"),
-          "Description" = c("Value indicating if the booking was canceled (1) or not (0)",
-                            "Number of days that elapsed between the entering date of the booking into the PMS and the arrival date",
-                            "Year of arrival date",
-                            "Season of arrival date",
-                            "Number of weekend nights (Saturday or Sunday) the guest stayed or booked to stay at the hotel",
-                            "Number of weekend nights (Saturday or Sunday) the guest stayed or booked to stay at the hotel",
-                            "Number of adults",
-                            "Number of children/babies",
-                            "Value indicating if the booking name was from a repeated guest (1) or not (0)",
-                            "Number of changes/amendments made to the booking from the moment the booking was entered on the PMS until the moment of check-in or cancellation",
-                            "Average Daily Rate as defined by dividing the sum of all lodging transactions by the total number of staying nights")
-)
-datadictionary %>% DT::datatable(options = list(pageLength=11))          
-```
-
-### Glimpse of the Dataset
-```{r dataglimpse, warning=FALSE, message=FALSE}
-hotels_clean %>% DT::datatable()
-```
-
-Column {data-width=350, overflow-x: auto, vertical_layout: scroll}
------------------------------------------------------------------------
-
-### Characteristics of hotel bookings overall and by cancellation
-```{r table1, warning=FALSE, message=FALSE}
-table1(~ hotel + lead_time + arrival_date_year + arrival_date_season + 
-         stays_in_weekend_nights + stays_in_week_nights + adults + 
-         childbaby + is_repeated_guest + booking_changes + adr
-         | is_canceled, data=hotels_clean, c(left="Overall"))
-```
-
-Descriptive Statistics for Categorical Characteristics
-=====================================  
-
-Column {.tabset}
--------------------------------------
-   
-### Number of completed and cancelled hotel bookings by season and year
-
-```{r figure1, fig.height=8, fig.width=10, fig.align="center", warning=FALSE, results="asis"}
 # Define a custom theme to start with
 custom_theme <- theme(
   panel.background = element_blank(),
@@ -213,95 +118,6 @@ custom_theme <- theme(
   plot.title = element_text(color="black", size=14, face="bold", hjust=0.5),
 )
 
-# Data for figure 1
-hotels_summary1 <- 
-  hotels_clean %>% 
-  group_by(arrival_date_year, arrival_date_season, is_canceled) %>%
-  summarize(
-    n=n()
-  )
-
-# Generate figure 1 using geom_bar()
-figure1 <- ggplot(data=hotels_summary1, aes(x=arrival_date_season, y=n, fill=is_canceled)) +
-           # Add stacked bar plot
-           geom_bar(stat="identity") +
-           # Specify color manual
-           scale_fill_manual(name = "Cancelled booking",
-                             values=c("#40B0A6", "#E1BE6A"),
-                             labels = c("No", "Yes")) +
-           facet_wrap(~ arrival_date_year, ncol=1) +
-           # Add labels
-           labs(x="Season",
-                y="Number of hotel bookings",
-                title="Number of completed and cancelled hotel bookings by season and year",
-                subtitle = "Larger number of bookings and cancellations during summer",
-                caption = "Kening Jiang") +
-           # Modify the theme
-           custom_theme +
-                 theme(axis.text.x=element_text(size=12),
-                       axis.text.y=element_text(size=14),
-                       legend.text = element_text(size = 12),
-                       legend.title=element_text(size=14, face="bold"),
-                       plot.subtitle=element_text(size=12, hjust=0.5),
-                       legend.box.background = element_rect(),
-                       legend.box.margin = margin(5,5,5,5),
-                       strip.text.x = element_text(size = 14, face="bold"),
-                       strip.background = element_rect(fill="#D3E1D0"),
-                       plot.caption = element_text(size=14)
-                 )
-# Display the plot
-figure1
-```
- 
-### Number of completed and cancelled hotel bookings by hotel type
-    
-```{r figure2, fig.height=8, fig.width=10, fig.align="center", warning=FALSE, results="asis"}
-# Data for figure 2
-hotels_summary2 <- 
-  hotels_clean %>% 
-  group_by(is_canceled, hotel) %>%
-  summarize(
-    n=n()
-  )
-
-# Generate figure 2 using geom_bar()
-figure2 <- ggplot(data=hotels_summary2, aes(x=hotel, y=n, fill=is_canceled)) +
-           # Add stacked bar plot
-           geom_bar(stat="identity") +
-           # Specify color manual
-           scale_fill_manual(name = "Cancelled booking",
-                             values=c("#40B0A6", "#E1BE6A"),
-                             labels = c("No", "Yes")) +
-           # Add labels
-           labs(x="Hotel type",
-                y="Number of hotel bookings",
-                title="Number of completed and cancelled hotel bookings by hotel type",
-                subtitle = "Larger number of bookings and cancellations in city hotels",
-                caption = "Kening Jiang") +
-           # Modify the theme
-           custom_theme +
-                 theme(axis.text.x=element_text(size=12),
-                       axis.text.y=element_text(size=14),
-                       legend.text = element_text(size = 12),
-                       legend.title=element_text(size=14, face="bold"),
-                       plot.subtitle=element_text(size=12, hjust=0.5),
-                       legend.box.background = element_rect(),
-                       legend.box.margin = margin(5,5,5,5),
-                       plot.caption = element_text(size=14)
-                 )
-
-# Display the plot
-figure2
-```
-
-
-Descriptive Statistics for Continuous Characteristics
-=====================================  
-
-Column {.sidebar}
--------------------------------------
-
-```{r figure3_1data, warning=FALSE, message=FALSE}
 # Data for figure 3
 # Mean of continuous characteristics by cancellation
 hotels_summary3_mean <- 
@@ -336,114 +152,6 @@ pivot_longer(cols = c(lead_time, stays_in_weekend_nights, stays_in_week_nights, 
 # Join for combined dataset for mean and standard deviation of characteristics
 hotels_summary3 <- inner_join(hotels_summary3_mean, hotels_summary3_sd, by=c("is_canceled", "measure"))
 
-
-selectInput("Variable", label = "Variable of Interest:",
-            choices = c("Time before arrival" = "lead_time", 
-                        "Average daily rate" = "adr", 
-                        "Number of weekend nights" = "stays_in_weekend_nights", 
-                        "Number of weekdays" = "stays_in_week_nights", 
-                        "Number of adult guests" = "adults", 
-                        "Number of children/babies" = "childbaby", 
-                        "Number of changes in bookings" = "booking_changes"))
-```
-
-## Column
-
-### Mean and standard deviation of the selected characteristic by cancellation
-```{r distribution}
-renderPlot({
-  hotels_summary3 %>% filter(measure==input$Variable) %>%
-  ggplot(aes(x=is_canceled, y=mean)) + 
-             # Add the bar plot for mean of characteristics
-             geom_bar(position=position_dodge(), stat="identity", 
-             fill="#E1BE6A") + 
-             # Add the error bar for standard deviation of characteristics
-             geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
-             # Add labels
-             labs(x="Bookings cancelled",
-                  y="Mean and standard deviation",
-                  caption = "Kening Jiang") +
-             # Modify the theme
-             custom_theme +
-                 theme(axis.title = element_text(size=20, face="bold"),
-                       axis.text.x=element_text(size=20),
-                       axis.text.y=element_text(size=20),
-                       legend.text = element_text(size = 12),
-                       legend.title=element_text(size=14, face="bold"),
-                       plot.subtitle=element_text(size=12, hjust=0.5),
-                       legend.box.background = element_rect(),
-                       legend.box.margin = margin(5,5,5,5),
-                       plot.caption = element_text(size=18)
-                 )
-})
-```
-
-
-Univariate Regression Analysis with Cancellation
-===================================== 
-
-Column {.tabset}
--------------------------------------
-### Type of Hotel
-```{r unihotel, warning=FALSE, message=FALSE}
-summary(glm(is_canceled ~ hotel, data = hotels_clean, family = binomial))
-```
-
-### Year of arrival date
-```{r uniyear, warning=FALSE, message=FALSE}
-summary(glm(is_canceled ~ as.factor(arrival_date_year), data = hotels_clean, family = binomial))
-```
-
-### Season of arrival date
-```{r uniseason, warning=FALSE, message=FALSE}
-summary(glm(is_canceled ~ as.factor(arrival_date_season), data = hotels_clean, family = binomial))
-```
-
-### Repeated guest
-```{r unirepeated, warning=FALSE, message=FALSE}
-summary(glm(is_canceled ~ is_repeated_guest, data = hotels_clean, family = binomial))
-```
-
-### Time before arrival
-```{r leadtime, warning=FALSE, message=FALSE}
-summary(glm(is_canceled ~ lead_time, data = hotels_clean, family = binomial))
-```
-
-### Number of weekend nights
-```{r stayweekend, warning=FALSE, message=FALSE}
-summary(glm(is_canceled ~ stays_in_weekend_nights, data = hotels_clean, family = binomial))
-```
-
-### Number of weekdays
-```{r stayweekday, warning=FALSE, message=FALSE}
-summary(glm(is_canceled ~ stays_in_week_nights, data = hotels_clean, family = binomial))
-```
-
-### Number of adult guests
-```{r adult, warning=FALSE, message=FALSE}
-summary(glm(is_canceled ~ adults, data = hotels_clean, family = binomial))
-```
-
-### Number of children/babies
-```{r childbaby, warning=FALSE, message=FALSE}
-summary(glm(is_canceled ~ childbaby, data = hotels_clean, family = binomial))
-```
-
-### Number of changea to the booking
-```{r booking, warning=FALSE, message=FALSE}
-summary(glm(is_canceled ~ booking_changes, data = hotels_clean, family = binomial))
-```
-
-### Average Daily Rate
-```{r adr, warning=FALSE, message=FALSE}
-summary(glm(is_canceled ~ adr, data = hotels_clean, family = binomial))
-```
-
-
-Coefficient Plots for Univariate Analysis
-===================================== 
-
-```{r univariate, warning=FALSE, message=FALSE, include=FALSE}
 # Store the name of outcome and continuous and cateogorical variables
 outcomes <- hotels_clean %>%
   select(is_canceled) %>% colnames
@@ -465,9 +173,7 @@ uni_summary2 <- paramlist2 %>%
   mutate(mod = map2(outcomes, covars_cat, ~ glm(reformulate(.y, .x), data = hotels_clean, family = binomial)),
          res = map(mod, broom::tidy)) 
 uni_summary2$res
-```
 
-```{r univariateplotdata, warning=FALSE, message=FALSE, include=FALSE}
 # Use map and map_Dbl() for coefficients of regression models
 coef1 <- cbind(covars_cont, outcomes %>% 
   map(~ map(covars_cont, function(.y) glm(reformulate(.y, .x), data = hotels_clean, family = binomial))) %>% 
@@ -494,10 +200,328 @@ uni_summary <- uni_summary %>%
     ) 
 uni_summary$coefficients <- as.numeric(uni_summary$coefficients)
 uni_summary$strerr <- as.numeric(uni_summary$strerr)
+
+datadictionary <- data.frame(
+          "Variable" = c("is_canceled hotel", "lead_time", "arrival_date_year", 
+                         "arrival_date_season", "stays_in_weekend_nights", 
+                         "stays_in_week_nights", "adults", "childbaby", 
+                         "is_repeated_guest", "booking_changes", "adr"),
+          "Description" = c("Value indicating if the booking was canceled (1) or not (0)",
+                            "Number of days that elapsed between the entering date of the booking into the PMS and the arrival date",
+                            "Year of arrival date",
+                            "Season of arrival date",
+                            "Number of weekend nights (Saturday or Sunday) the guest stayed or booked to stay at the hotel",
+                            "Number of weekend nights (Saturday or Sunday) the guest stayed or booked to stay at the hotel",
+                            "Number of adults",
+                            "Number of children/babies",
+                            "Value indicating if the booking name was from a repeated guest (1) or not (0)",
+                            "Number of changes/amendments made to the booking from the moment the booking was entered on the PMS until the moment of check-in or cancellation",
+                            "Average Daily Rate as defined by dividing the sum of all lodging transactions by the total number of staying nights")
+)
+
+# Multivairable logistic regression 
+# Year of booking and repeated guest are dropped as they are not significant in the univariate analysis
+mvr <- summary(glm(is_canceled~hotel + lead_time + as.factor(arrival_date_season) + stays_in_weekend_nights
+                             + stays_in_week_nights + adults + childbaby + booking_changes + adr, 
+                             data = hotels_clean, family = binomial))
+mvr
+
+# Summary dataset for coefficients and standard errors of the regression
+mvr_summary <- as.data.frame(cbind(mvr$coefficients[2:12, 1], mvr$coefficients[2:12, 2]))
+mvr_summary <- mvr_summary %>%
+  rename(
+    coefficients = V1,
+    strerr = V2
+    ) 
+mvr_summary$variable <- row.names(mvr_summary)  
+
+# Modify x labels for plot
+x_labels2 <- c('Average daily rate', 'N_adults', "Fall", "Summer","Winter", 'Booking changes', 'N_children', "Hotel type", 'Time before arrival', 'N_weekdays', 'N_weekends')
 ```
 
+About
+=====================================  
 
-```{r unichoice, warning=FALSE, message=FALSE}
+Column {data-width=500, vertical_layout: scroll}
+-----------------------------------------------------------------------
+
+### Purpose of the dashboard
+
+The dashboard is to examine hotel cancellations and factors associated with hotel cancellations in the United States between 2015 and 2017.
+
+
+<iframe
+    width="640"
+    height="480"
+    src="https://www.youtube.com/embed/F6bVHM_C8gs"
+    frameborder="0"
+    allow="autoplay; encrypted-media"
+    allowfullscreen
+>
+</iframe>
+
+###
+```{r picture, echo = F, out.width = '100%'}
+knitr::include_graphics("hotel.png")
+```
+
+Column {data-width=400, vertical_layout: scroll}
+-----------------------------------------------------------------------
+
+### Original data
+
+The dataset is included in [TidyTuesday, 2020-02-11](https://github.com/rfordatascience/tidytuesday/tree/master/data/2020/2020-02-11#readme). The original dataset comes from an open hotel booking demand dataset from [Antonio, Almeida and Nunes, 2019](https://www.sciencedirect.com/science/article/pii/S2352340918315191#f0010). This dataset includes bookings of resort hotels or city hotels between the 1st of July of 2015 and the 31st of August 2017, including bookings that effectively arrived and bookings that were cancelled.
+
+### Dashboard author
+
+Kening Jiang, MHS
+
+`r fontawesome::fa("envelope")` [Email](mailto:kjiang7@jhmi.edu)
+
+`r fontawesome::fa("github")`[Github](https://github.com/jhu-statprogramming-fall-2023/biostat777-project4-KeningJiang.git)
+
+`r fontawesome::fa("google")` [Google Scholar](https://scholar.google.com/citations?hl=en&user=J64T4xYAAAAJ&view_op=list_works&authuser=1&sortby=pubdate)
+
+The Data
+=====================================  
+
+Column {data-width="650"}
+-----------------------------------------------------------------------
+
+### Data dictionary
+
+```{r}
+datadictionary %>% DT::datatable(options = list(pageLength=11))          
+```
+
+### Glimpse of the dataset
+
+```{r}
+hotels_clean %>% DT::datatable()
+```
+
+Column {data-width=350, overflow-x: auto, vertical_layout: scroll}
+-----------------------------------------------------------------------
+
+### Characteristics of hotel bookings overall and by cancellation
+
+```{r}
+table1(~ hotel + lead_time + arrival_date_year + arrival_date_season + 
+         stays_in_weekend_nights + stays_in_week_nights + adults + 
+         childbaby + is_repeated_guest + booking_changes + adr
+         | is_canceled, data=hotels_clean, c(left="Overall"))
+```
+
+Descriptive Statistics for Categorical Characteristics
+=====================================  
+
+Column {.tabset}
+-----------------------------------------------------------------------
+
+
+### Number of completed and cancelled hotel bookings by season and year
+
+```{r, fig.height=8, fig.width=10, fig.align="center", warning=FALSE, results="asis"}
+# Data for figure 1
+  hotels_clean %>% 
+  group_by(arrival_date_year, arrival_date_season, is_canceled) %>%
+  summarize(
+    n=n()
+  ) %>%
+# Generate figure 1 using geom_bar()
+ggplot(aes(x=arrival_date_season, y=n, fill=is_canceled)) +
+           # Add stacked bar plot
+           geom_bar(stat="identity") +
+           # Specify color manual
+           scale_fill_manual(name = "Cancelled booking",
+                             values=c("#40B0A6", "#E1BE6A"),
+                             labels = c("No", "Yes")) +
+           facet_wrap(~ arrival_date_year, ncol=1) +
+           # Add labels
+           labs(x="Season",
+                y="Number of hotel bookings",
+                title="Number of completed and cancelled hotel bookings by season and year",
+                subtitle = "Larger number of bookings and cancellations during summer",
+                caption = "Kening Jiang") +
+           # Modify the theme
+           custom_theme +
+                 theme(axis.text.x=element_text(size=12),
+                       axis.text.y=element_text(size=14),
+                       legend.text = element_text(size = 12),
+                       legend.title=element_text(size=14, face="bold"),
+                       plot.subtitle=element_text(size=12, hjust=0.5),
+                       legend.box.background = element_rect(),
+                       legend.box.margin = margin(5,5,5,5),
+                       strip.text.x = element_text(size = 14, face="bold"),
+                       strip.background = element_rect(fill="#D3E1D0"),
+                       plot.caption = element_text(size=14)
+                 )
+```
+
+### Number of completed and cancelled hotel bookings by hotel type
+
+```{r, fig.height=8, fig.width=10, fig.align="center", warning=FALSE, results="asis"}
+# Data for figure 2
+  hotels_clean %>% 
+  group_by(is_canceled, hotel) %>%
+  summarize(
+    n=n()
+  ) %>%
+# Generate figure 2 using geom_bar()
+ggplot(aes(x=hotel, y=n, fill=is_canceled)) +
+           # Add stacked bar plot
+           geom_bar(stat="identity") +
+           # Specify color manual
+           scale_fill_manual(name = "Cancelled booking",
+                             values=c("#40B0A6", "#E1BE6A"),
+                             labels = c("No", "Yes")) +
+           # Add labels
+           labs(x="Hotel type",
+                y="Number of hotel bookings",
+                title="Number of completed and cancelled hotel bookings by hotel type",
+                subtitle = "Larger number of bookings and cancellations in city hotels",
+                caption = "Kening Jiang") +
+           # Modify the theme
+           custom_theme +
+                 theme(axis.text.x=element_text(size=12),
+                       axis.text.y=element_text(size=14),
+                       legend.text = element_text(size = 12),
+                       legend.title=element_text(size=14, face="bold"),
+                       plot.subtitle=element_text(size=12, hjust=0.5),
+                       legend.box.background = element_rect(),
+                       legend.box.margin = margin(5,5,5,5),
+                       plot.caption = element_text(size=14)
+                 )
+```
+
+Descriptive Statistics for Continuous Characteristics
+=====================================  
+
+Inputs {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+selectInput("Variable", label = "Variable of Interest:",
+            choices = c("Time before arrival" = "lead_time", 
+                        "Average daily rate" = "adr", 
+                        "Number of weekend nights" = "stays_in_weekend_nights", 
+                        "Number of weekdays" = "stays_in_week_nights", 
+                        "Number of adult guests" = "adults", 
+                        "Number of children/babies" = "childbaby", 
+                        "Number of changes in bookings" = "booking_changes"))
+```
+
+Column
+-----------------------------------------------------------------------
+
+### Mean and standard deviation of the selected characteristic by cancellation
+
+```{r}
+renderPlot({
+  ggplot(subset(hotels_summary3, measure %in% input$Variable), aes(x=is_canceled, y=mean)) + 
+             # Add the bar plot for mean of characteristics
+             geom_bar(position=position_dodge(), stat="identity", 
+             fill="#E1BE6A") + 
+             # Add the error bar for standard deviation of characteristics
+             geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2) +
+             # Add labels
+             labs(x="Bookings cancelled",
+                  y="Mean and standard deviation",
+                  caption = "Kening Jiang") +
+             # Modify the theme
+             custom_theme +
+                 theme(axis.title = element_text(size=20, face="bold"),
+                       axis.text.x=element_text(size=20),
+                       axis.text.y=element_text(size=20),
+                       legend.text = element_text(size = 12),
+                       legend.title=element_text(size=14, face="bold"),
+                       plot.subtitle=element_text(size=12, hjust=0.5),
+                       legend.box.background = element_rect(),
+                       legend.box.margin = margin(5,5,5,5),
+                       plot.caption = element_text(size=18)
+                 )
+})
+```
+
+Univariate Regression Analysis with Cancellation
+=====================================  
+
+Column {.tabset}
+-----------------------------------------------------------------------
+
+### Type of Hotel
+
+```{r}
+summary(glm(is_canceled ~ hotel, data = hotels_clean, family = binomial))
+```
+
+### Year of arrival date
+
+```{r}
+summary(glm(is_canceled ~ as.factor(arrival_date_year), data = hotels_clean, family = binomial))
+```
+
+### Season of arrival date
+
+```{r}
+summary(glm(is_canceled ~ as.factor(arrival_date_season), data = hotels_clean, family = binomial))
+```
+
+### Repeated guest
+
+```{r}
+summary(glm(is_canceled ~ is_repeated_guest, data = hotels_clean, family = binomial))
+```
+
+### Time before arrival
+
+```{r}
+summary(glm(is_canceled ~ lead_time, data = hotels_clean, family = binomial))
+```
+
+### Number of weekend nights
+
+```{r}
+summary(glm(is_canceled ~ stays_in_weekend_nights, data = hotels_clean, family = binomial))
+```
+
+### Number of weekdays
+
+```{r}
+summary(glm(is_canceled ~ stays_in_week_nights, data = hotels_clean, family = binomial))
+```
+
+### Number of adult guests
+
+```{r}
+summary(glm(is_canceled ~ adults, data = hotels_clean, family = binomial))
+```
+
+### Number of children/babies
+
+```{r}
+summary(glm(is_canceled ~ childbaby, data = hotels_clean, family = binomial))
+```
+
+### Number of changea to the booking
+
+```{r}
+summary(glm(is_canceled ~ booking_changes, data = hotels_clean, family = binomial))
+```
+
+### Average Daily Rate
+
+```{r}
+summary(glm(is_canceled ~ adr, data = hotels_clean, family = binomial))
+```
+
+Coefficient Plots for Univariate Analysis
+=====================================  
+
+Inputs {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
 selectInput("Analysis", label = "Variable of Interest:",
             choices = c("Time before arrival" = "lead_time", 
                         "Average daily rate" = "adr", 
@@ -510,12 +534,12 @@ selectInput("Analysis", label = "Variable of Interest:",
 
 Column
 -----------------------------------------------------------------------
+
 ### Coefficient and 95% confidence interval of the selected characteristic
 
-```{r coefficient}
+```{r}
 renderPlot({
-  uni_summary %>% filter(variable==input$Analysis) %>%
-  ggplot(aes(x=variable, y=coefficients)) +
+  ggplot(subset(uni_summary, variable %in% input$Analysis), aes(x=variable, y=coefficients)) +
            # Add points
            geom_point() +
            # Add error bars
@@ -541,53 +565,34 @@ renderPlot({
 })
 ```
 
-
-
 Analysis
 =====================================  
-Research question:  To examine hotel cancellations and factors associated with hotel cancellations in the United States between 2015 and 2017.
+
+Research question: To examine hotel cancellations and factors associated with hotel cancellations in the United States between 2015 and 2017.
 
 Column {data-width=350, vertical_layout: scroll}
 -----------------------------------------------------------------------
 
 ### Methods
-We ran multivairable-adjusted logistic regression with cancellation (Yes/No) as the outcome. The model included characteristics that are significantly associated with cancellation in the univariate analysis (time before arrival, year of arrival, season of arrival, number of weekend nights stayed, number of weekdays stayed, number of adult guests, number of children/babies, changes to the booking, and average daily rate). 
 
-```{r multivariate, warning=FALSE, message=FALSE}
-# Multivairable logistic regression 
-# Year of booking and repeated guest are dropped as they are not significant in the univariate analysis
-mvr <- summary(glm(is_canceled~hotel + lead_time + as.factor(arrival_date_season) + stays_in_weekend_nights
-                             + stays_in_week_nights + adults + childbaby + booking_changes + adr, 
-                             data = hotels_clean, family = binomial))
+We ran multivariable-adjusted logistic regression with cancellation (Yes/No) as the outcome. The model included characteristics that are significantly associated with cancellation in the univariate analysis (time before arrival, year of arrival, season of arrival, number of weekend nights stayed, number of weekdays stayed, number of adult guests, number of children/babies, changes to the booking, and average daily rate).
+
+```{r}
 mvr
-
-# Summary dataset for coefficients and standard errors of the regression
-mvr_summary <- as.data.frame(cbind(mvr$coefficients[2:12, 1], mvr$coefficients[2:12, 2]))
-mvr_summary <- mvr_summary %>%
-  rename(
-    coefficients = V1,
-    strerr = V2
-    ) 
-mvr_summary$variable <- row.names(mvr_summary)  
 ```
-
 
 ### Summary of findings
 
-Among 2,097 hotel bookings between 2015 and 2017 in the United States, 501 (24%) bookings are cancelled and 1,596 (76%) bookings are completed. We examined whether hotel type, time between booking and arrival, season and year of the bookings, number of weekdays and weekend days, number of adult guests, number of children/babies, changes to the bookings, repeated guest, and average daily rate are associated with cancelled bookings. In multivariable logistic regression, resort (vs. city) hotel, fall (vs. spring) and changes in the bookings are independently associated with lower odds of cancellations, while longer time between booking and arrival, longer stays on weekdays and weekend days, and higher average daily rating are independently associated with higher odds of cancellations.
-
+Among 2,097 hotel bookings between 2015 and 2017 in the United States, 501 (24%) bookings are cancelled and 1,596 (76%) bookings are completed. We examined whether hotel type, time between booking and arrival, season and year of the bookings, number of weekdays and weekend days, number of adult guests, number of children/babies, changes to the bookings, repeated guest, and average daily rate are associated with cancelled bookings. In multivariable-adjusted logistic regression, resort (vs. city) hotel, fall (vs. spring) and changes to the booking are independently associated with lower odds of cancellations, while longer time between booking and arrival, longer stays on weekdays and weekend days, and higher average daily rating are independently associated with higher odds of cancellations.
 
 Column {data-width=350, vertical_layout: scroll}
 -----------------------------------------------------------------------
 
 ### Summary of regression results: coefficients and 95% confidence intervals (CIs)
 
-```{r figure5, fig.align="center", warning=FALSE, results="asis"}
-# Modify x labels for plot
-x_labels2 <- c('Average daily rate', 'N_adults', "Fall", "Summer","Winter", 'Booking changes', 'N_children', "Hotel type", 'Time before arrival', 'N_weekdays', 'N_weekends')
-
+```{r, fig.height=8, fig.width=10, fig.align="center", warning=FALSE, results="asis"}
 # Generate figure 5 using geom_point() and geom_errorbar()
-Figure5 <-ggplot(mvr_summary, aes(x=variable, y=coefficients)) +
+ggplot(mvr_summary, aes(x=variable, y=coefficients)) +
            # Add points
            geom_point() +
            # Add error bars
@@ -613,6 +618,4 @@ Figure5 <-ggplot(mvr_summary, aes(x=variable, y=coefficients)) +
                        legend.box.margin = margin(5,5,5,5),
                        plot.caption = element_text(size=14)
                  )
-# Display the plot
-Figure5
 ```
