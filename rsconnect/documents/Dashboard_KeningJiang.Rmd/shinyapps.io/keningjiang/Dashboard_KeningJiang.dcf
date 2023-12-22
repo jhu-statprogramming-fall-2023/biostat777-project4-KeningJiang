@@ -4,8 +4,8 @@ username: keningjiang
 account: keningjiang
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
-appId: 10838497
-bundleId: 8075301
+appId: 10838546
+bundleId: 8075319
 url: https://keningjiang.shinyapps.io/Dashboard_KeningJiang/
 version: 1
 asMultiple: FALSE
