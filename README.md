@@ -1,10 +1,11 @@
 # Dashboard for Exploring Hotel Cancellations
 
 ## Dashboard link
-https://keningjiang.shinyapps.io/Dashboard_KeningJiang/
+https://keningjiang.shinyapps.io/Dashboard_KeningJiang/ 
 
 ## Dashboard description
 The dashboard included descriptive analysis, univariate analysis to explore selected characteristics by cancellations of hotel bookings, and multivariable-adjusted analysis to understand whether these characteristics are associated with cancellations after controlling for other characteristics.
+
 ## Author
 * Kening Jiang, MHS
 * Email: kjiang7@jhmi.edu
